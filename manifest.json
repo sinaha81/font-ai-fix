@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Persian RTL Fix",
-  "version": "1.0",
+  "name": "ّ[FONT Fix",
+  "version": "2.0",
   "description": "Detect Persian and English text on DeepSeek Chat and apply the correct text direction.",
   "permissions": ["activeTab"],
   "content_scripts": [
