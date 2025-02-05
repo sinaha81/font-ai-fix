@@ -1,20 +1,23 @@
 {
   "manifest_version": 3,
-  "name": "ّ[FONT Fix",
-  "version": "2.0",
+  "name": "FONT Fix",
+  "version": "1.0",
   "description": "Detect Persian and English text on DeepSeek Chat and apply the correct text direction.",
-  "permissions": ["activeTab"],
   "content_scripts": [
     {
-      "matches": ["https://chat.deepseek.com/*", "https://chatgpt.com/*"   ,      "*://*.chat.openai.com/*",
-      "*://*.deepseek.com/*",
-        "https://copilot.microsoft.com/", 
-        "https://gemini.google.com/app", 
-        "https://gemini.google.com", 
-        "https://x.com/", 
-        "https://chat.qwenlm.ai/", 
-        "https://aistudio.google.com/"
-    ], 
+      "matches": [
+        "https://chat.deepseek.com/*",
+        "https://chatgpt.com/*",
+        "*://*.chat.openai.com/*",
+        "*://*.deepseek.com/*",
+        "https://copilot.microsoft.com/*",
+        "https://gemini.google.com/app/*",
+        "https://gemini.google.com/*",
+        "https://x.com/*",
+        "https://chat.qwenlm.ai/*",
+        "https://aistudio.google.com/*",
+        "https://www.youtube.com/*"
+      ],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
