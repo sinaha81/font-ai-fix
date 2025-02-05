@@ -5,6 +5,7 @@ const defaultConfig = {
   debugMode: false                  
 };
 let config = { ...defaultConfig };
+
 try {
   const storedConfig = JSON.parse(localStorage.getItem("autoTextDirectionConfig"));
   if (storedConfig) {
@@ -13,11 +14,13 @@ try {
 } catch (e) {
   console.error("خطا در خواندن تنظیمات از localStorage:", e);
 }
+
 function logDebug(message) {
   if (config.debugMode) {
     console.log("[AutoTextDirection] " + message);
   }
 }
+
 function debounce(fn, delay) {
   let timeout;
   return function (...args) {
@@ -25,6 +28,7 @@ function debounce(fn, delay) {
     timeout = setTimeout(() => fn.apply(this, args), delay);
   };
 }
+
 function showTooltip(message, x, y) {
   const tooltip = document.createElement("div");
   tooltip.textContent = message;
@@ -43,28 +47,39 @@ function showTooltip(message, x, y) {
     tooltip.parentNode.removeChild(tooltip);
   }, 1500);
 }
+
 function detectTextDirection(text) {
   const trimmedText = text.trim();
   if (!trimmedText) return null;
+
   const rtlMatches = trimmedText.match(/[\u0600-\u06FF\u0590-\u05FF]/g) || [];
   const ltrMatches = trimmedText.match(/[A-Za-z]/g) || [];
+  
   logDebug(`متن: "${trimmedText}" | RTL: ${rtlMatches.length} | LTR: ${ltrMatches.length}`);
-  if (rtlMatches.length === 0 && ltrMatches.length === 0) return null;
-  return rtlMatches.length > ltrMatches.length ? "rtl" : "ltr";
+  
+  if (rtlMatches.length > 0 || (ltrMatches.length > 0 && rtlMatches.length > ltrMatches.length)) {
+    return "rtl";
+  }
+
+  return "ltr";
 }
+
 function applyTextDirection(el) {
   if (el.closest("nav")) return;
   if (el.getAttribute("data-auto-text-dir-manual") === "true") {
     logDebug("این المنت در حالت override دستی است، به‌روزرسانی خودکار نادیده گرفته شد.");
     return;
   }
+  
   const text = el.value !== undefined ? el.value : el.textContent;
   const direction = detectTextDirection(text);
+  
   if (!direction) {
     el.removeAttribute("dir");
     el.style.textAlign = "";
     return;
   }
+  
   if (direction === "rtl") {
     el.setAttribute("dir", "rtl");
     el.style.textAlign = "right";
@@ -74,19 +89,23 @@ function applyTextDirection(el) {
   }
   logDebug(`جهت المنت ${el.tagName} به ${direction} تنظیم شد.`);
 }
+
 function updateElement(el) {
   if (config.autoTextDirectionEnabled) {
     applyTextDirection(el);
   }
 }
+
 function setupElement(el) {
   if (el.__autoTextDirectionSetup) return;
   el.__autoTextDirectionSetup = true;
   const debouncedUpdate = debounce(() => updateElement(el), config.debounceTime);
+  
   el.addEventListener("input", debouncedUpdate);
   el.addEventListener("paste", () => setTimeout(debouncedUpdate, 0));
   el.addEventListener("focus", debouncedUpdate);
   el.addEventListener("blur", debouncedUpdate);
+  
   el.addEventListener("dblclick", () => {
     if (el.getAttribute("data-auto-text-dir-manual") === "true") {
       el.removeAttribute("data-auto-text-dir-manual");
@@ -97,9 +116,9 @@ function setupElement(el) {
     el.setAttribute("dir", newDir);
     el.style.textAlign = newDir === "rtl" ? "right" : "left";
     logDebug(`جهت توسط double-click تغییر یافت به: ${newDir}`);
-    // نمایش tooltip
     showTooltip(newDir.toUpperCase(), el.getBoundingClientRect().left, el.getBoundingClientRect().top - 25);
   });
+  
   el.addEventListener("contextmenu", (e) => {
     if (e.shiftKey) {
       e.preventDefault();
@@ -115,7 +134,9 @@ function setupElement(el) {
       }
     }
   });
+  
   updateElement(el);
+  
   if (window.IntersectionObserver) {
     const io = new IntersectionObserver(entries => {
       entries.forEach(entry => {
@@ -127,11 +148,13 @@ function setupElement(el) {
     io.observe(el);
   }
 }
+
 function processEditableElements() {
   const selectors = "input[type='text'], textarea, [contenteditable='true']";
   const elements = document.querySelectorAll(selectors);
   elements.forEach(setupElement);
 }
+
 const mutationObserver = new MutationObserver(mutations => {
   mutations.forEach(mutation => {
     mutation.addedNodes.forEach(node => {
@@ -145,6 +168,7 @@ const mutationObserver = new MutationObserver(mutations => {
   });
 });
 mutationObserver.observe(document.body, { childList: true, subtree: true });
+
 document.addEventListener("keydown", function (e) {
   if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "t") {
     config.autoTextDirectionEnabled = !config.autoTextDirectionEnabled;
@@ -154,11 +178,11 @@ document.addEventListener("keydown", function (e) {
     }
   }
 });
+
 document.addEventListener("keydown", function (e) {
   if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "l") {
     const activeEl = document.activeElement;
     if (activeEl && activeEl.matches("input[type='text'], textarea, [contenteditable='true']")) {
-      // اگر override دستی فعال باشد، ابتدا آن را غیرفعال کنیم
       if (activeEl.getAttribute("data-auto-text-dir-manual") === "true") {
         activeEl.removeAttribute("data-auto-text-dir-manual");
       }
@@ -171,7 +195,9 @@ document.addEventListener("keydown", function (e) {
     }
   }
 });
+
 window.addEventListener("resize", processEditableElements);
+
 setInterval(() => {
   const activeEl = document.activeElement;
   if (activeEl && activeEl.matches("input[type='text'], textarea, [contenteditable='true']")) {
@@ -191,4 +217,5 @@ window.addEventListener("storage", function (e) {
     }
   }
 });
+
 processEditableElements();
