@@ -28,7 +28,7 @@ ___
 # 🔧 نحوه نصب افزونه در کروم
 ✅ ۱. دانلود فایل‌های افزونه:<br> 
 https://github.com/sinaha81/font-ai-fix/releases/download/font-ai-fix/content.zip <br>
-فایل ها را از GitHub دانلود کنید و در پوشه ای ذخیره کنید <br>
+فایل ها را از GitHub دانلود کنید و اکسترکت کنید و در پوشه ای ذخیره کنید <br>
 ✅ ۲. نصب افزونه در مرورگر Chrome:  <br>
 1️⃣ وارد صفحه Extensions شوید:
 🔗 chrome://extensions/<br>
